@@ -2,7 +2,8 @@
   "dependencies": {
     "@angular/common": "^20.3.12",
     "dotenv": "^17.2.3",
-    "openai": "^5.3.0"
+    "openai": "^5.3.0",
+    "youtube-transcript": "^1.2.1"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
