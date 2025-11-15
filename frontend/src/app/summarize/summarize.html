@@ -1,0 +1,47 @@
+<div class="container">
+
+  <h2>YouTube Content Cleaner</h2>
+
+  <label>Video Title</label>
+  <input [(ngModel)]="title()" placeholder="Enter video title">
+
+  <label>Transcript</label>
+  <textarea [(ngModel)]="transcript()" rows="6"></textarea>
+
+  <label>Optional: Your API Key</label>
+  <input [(ngModel)]="userApiKey()" placeholder="sk-...">
+
+  <button (click)="submit()" [disabled]="loading()">
+    @if (loading()) {
+      Processing...
+    } @else {
+      Summarize
+    }
+  </button>
+
+  @if (result()) {
+    <div class="output-box">
+      <h3>Bottom Line</h3>
+      <p>{{ result().bottom_line }}</p>
+
+      <h3>Key Points</h3>
+      <ul>
+        @for (point of result().key_points; track point) {
+          <li>{{ point }}</li>
+        }
+      </ul>
+
+      <h3>Skip To</h3>
+      <p>{{ result().skip_to_timestamp }}</p>
+
+      <h3>Fluff Level: {{ result().fluff_level.score }}/100</h3>
+      <p>{{ result().fluff_level.summary }}</p>
+
+      <h3>Clickbait Accuracy: {{ result().clickbait_accuracy.score }}/100</h3>
+      <p>{{ result().clickbait_accuracy.explanation }}</p>
+
+      <h3>Better Title Suggestion</h3>
+      <p>{{ result().better_title }}</p>
+    </div>
+  }
+</div>
