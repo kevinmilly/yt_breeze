@@ -1,140 +1,95 @@
-/* --------------------------------------------- */
-/* Light & Dark Mode Root Styles                 */
-/* --------------------------------------------- */
-
-:root {
-  --bg: #f5f7fb;
-  --bg-gradient: radial-gradient(circle at top, #eaf2ff 0%, #ffffff 60%);
-  --text: #1a1a1a;
-  --subtext: #555;
-  --card-bg: #ffffffee;
-  --input-bg: #ffffff;
-  --border: #d4d9e4;
-  --button-bg: #3b82f6;
-  --button-text: #ffffff;
-  --button-disabled: #9db9ee;
+body.light {
+  --bg: #fafafa;
+  --text: #222;
+  --card: white;
 }
 
-.dark-mode {
-  --bg: #0f0f0f;
-  --bg-gradient: radial-gradient(circle at top, #1b1f29 0%, #0f0f0f 70%);
-  --text: #f1f1f1;
-  --subtext: #aaaaaa;
-  --card-bg: #1a1a1add;
-  --input-bg: #222;
-  --border: #444;
-  --button-bg: #2563eb;
-  --button-text: #ffffff;
-  --button-disabled: #3a4c6b;
+body.dark {
+  --bg: #0d1117;
+  --text: #e6edf3;
+  --card: #161b22;
 }
-
-/* --------------------------------------------- */
-/* Page Layout                                   */
-/* --------------------------------------------- */
 
 body {
-  background: var(--bg-gradient);
+  background: var(--bg);
   color: var(--text);
-  font-family: system-ui, sans-serif;
   margin: 0;
-  padding: 0;
+  transition: 0.3s ease;
+  font-family: Arial, sans-serif;
 }
 
-/* Centered card container */
 .container {
-  max-width: 700px;
-  margin: 60px auto;
-  background: var(--card-bg);
-  padding: 35px 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  max-width: 760px;
+  padding: 20px;
+  margin: auto;
 }
 
-/* Headings */
-h2 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-size: 26px;
-  font-weight: 600;
-}
-
-/* --------------------------------------------- */
-/* Inputs                                        */
-/* --------------------------------------------- */
-
-label {
-  display: block;
-  margin-top: 20px;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: var(--subtext);
-}
-
-input,
-textarea {
+input, textarea {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--input-bg);
-  color: var(--text);
-  font-size: 15px;
-  outline: none;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
-
-input:focus,
-textarea:focus {
-  border-color: var(--button-bg);
-}
-
-/* --------------------------------------------- */
-/* Button                                        */
-/* --------------------------------------------- */
 
 button {
-  margin-top: 24px;
-  width: 100%;
-  padding: 12px;
-  background: var(--button-bg);
-  color: var(--button-text);
+  padding: 10px 20px;
+  border-radius: 6px;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  background: #007bff;
+  color: white;
+  margin-top: 10px;
 }
 
 button:disabled {
-  background: var(--button-disabled);
-  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-button:hover:not(:disabled) {
-  opacity: 0.9;
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* --------------------------------------------- */
-/* Output Box                                    */
-/* --------------------------------------------- */
-
-.output-box {
-  margin-top: 40px;
-  padding: 25px;
-  border-radius: 12px;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
+.mode-btn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--text);
 }
 
-.output-box h3 {
-  margin-top: 18px;
-  margin-bottom: 6px;
+.output {
+  background: var(--card);
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
 }
 
-/* Mobile fixes */
+.copy-btn {
+  background: #444;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.spinner {
+  border: 3px solid #ddd;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mobile */
 @media (max-width: 600px) {
   .container {
-    margin: 20px;
-    padding: 25px;
+    padding: 10px;
   }
 }

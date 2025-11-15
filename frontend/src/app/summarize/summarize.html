@@ -1,111 +1,57 @@
-<div class="page" [class.dark]="darkMode()">
+<div class="container">
 
-  <header class="top-bar">
-    <div class="logo">YT Breeze</div>
-    <button class="toggle-dark" (click)="toggleDarkMode()">
-      @if (darkMode()) {
-        ☀ Light
-      } @else {
-        🌙 Dark
-      }
+  <header>
+    <h1>YT Breeze</h1>
+    <button class="mode-btn" (click)="toggleMode()">
+      {{ mode() === 'light' ? '🌙 Dark' : '☀️ Light' }}
     </button>
   </header>
 
-  <main class="container">
+  <h2>YouTube Content Cleaner</h2>
+  <p>Paste a YouTube link. Get bottom line, key points, fluff rating, and clickbait score.</p>
 
-    <h2>YouTube Content Cleaner</h2>
-    <p class="subtitle">
-      Paste a YouTube link. Get the bottom line, fluff rating, and clickbait score.
-    </p>
+  <label>YouTube URL</label>
+  <input 
+    [ngModel]="youtubeUrl()"
+    (ngModelChange)="youtubeUrl.set($event)"
+    placeholder="https://youtube.com/watch?v=..."
+  />
 
-    <label class="field-label">YouTube URL</label>
-    <input
-      class="input"
-      [ngModel]="youtubeUrl()"
-      (ngModelChange)="youtubeUrl.set($event)"
-      placeholder="https://www.youtube.com/watch?v=abc123"
-    />
+  <label>Optional: Your OpenAI API Key</label>
+  <input 
+    type="password"
+    [ngModel]="userApiKey()"
+    (ngModelChange)="userApiKey.set($event)"
+    placeholder="sk-..."
+  />
 
-    <label class="field-label">Optional: Your OpenAI API Key</label>
-    <input
-      class="input"
-      [ngModel]="userApiKey()"
-      (ngModelChange)="userApiKey.set($event)"
-      placeholder="sk-..."
-    />
+  <button (click)="submit()" [disabled]="loading()">
+    @if (loading()) { <span class="spinner"></span> Processing... }
+    @else { Summarize Video }
+  </button>
 
-    <button class="primary-button" (click)="submit()" [disabled]="loading()">
-      @if (loading()) {
-        <span class="spinner"></span>
-        <span>Analyzing…</span>
-      } @else {
-        <span>Summarize Video</span>
-      }
-    </button>
+  @if (result()) {
+    <div class="output">
 
-    @if (result()) {
-      <section class="output-box">
+      <h3>Bottom Line</h3>
+      <p>{{ result().bottom_line }}</p>
+      <button class="copy-btn" (click)="copy(result().bottom_line)">Copy</button>
 
-        <div class="output-header">
-          <h3>Summary</h3>
-          <button class="secondary-button" (click)="copySummary()">
-            @if (copyStatus() === 'success') {
-              ✅ Copied
-            } @else if (copyStatus() === 'error') {
-              ⚠ Error
-            } @else {
-              📋 Copy
-            }
-          </button>
-        </div>
+      <h3>Key Points</h3>
+      <ul>
+        @for (point of result().key_points; track point) {
+          <li>{{ point }}</li>
+        }
+      </ul>
 
-        <div class="output-section">
-          <h4>Bottom Line</h4>
-          <p>{{ result().bottom_line }}</p>
-        </div>
+      <h3>Fluff Level</h3>
+      <p>{{ result().fluff_level.score }}/100 — {{ result().fluff_level.summary }}</p>
 
-        <div class="output-section" *ngIf="result().key_points?.length">
-          <h4>Key Points</h4>
-          <ul>
-            @for (point of result().key_points; track point) {
-              <li>{{ point }}</li>
-            }
-          </ul>
-        </div>
+      <h3>Clickbait Accuracy</h3>
+      <p>{{ result().clickbait_accuracy.explanation }}</p>
 
-        <div class="output-section" *ngIf="result().skip_to_timestamp">
-          <h4>Best Timestamp to Skip To</h4>
-          <p>{{ result().skip_to_timestamp }}</p>
-        </div>
-
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-label">Fluff Level</div>
-            <div class="metric-score">
-              {{ result().fluff_level.score }} / 100
-            </div>
-            <p class="metric-desc">{{ result().fluff_level.summary }}</p>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-label">Clickbait Accuracy</div>
-            <div class="metric-score">
-              {{ result().clickbait_accuracy.score }} / 100
-            </div>
-            <p class="metric-desc">
-              {{ result().clickbait_accuracy.explanation }}
-            </p>
-          </div>
-        </div>
-
-        <div class="output-section" *ngIf="result().better_title">
-          <h4>Better Title Suggestion</h4>
-          <p class="better-title">{{ result().better_title }}</p>
-        </div>
-
-      </section>
-    }
-
-  </main>
-
+      <h3>Better Title</h3>
+      <p>{{ result().better_title }}</p>
+    </div>
+  }
 </div>
