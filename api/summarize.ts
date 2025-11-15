@@ -23,6 +23,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ipUsage[ip] = { count: 0, lastReset: now };
     }
 
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method Not Allowed. Use POST." });
+    }
+
+
     const { transcript, title, userApiKey } = req.body;
     const usingBYOK = !!userApiKey;
 
