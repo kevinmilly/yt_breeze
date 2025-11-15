@@ -5,11 +5,8 @@ import { HttpClient } from '@angular/common/http';
 export class SummarizeService {
   private http = inject(HttpClient);
 
-  summarize(payload: {
-    transcript: string;
-    title: string;
-    userApiKey?: string;
-  }) {
-    return this.http.post('/api/summarize', payload);
+  summarize(body: { youtubeUrl: string; userApiKey?: string }) {
+    return this.http.post("/api/summarize", body);
   }
+
 }

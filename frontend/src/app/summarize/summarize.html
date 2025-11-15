@@ -1,47 +1,111 @@
-<div class="container">
+<div class="page" [class.dark]="darkMode()">
 
-  <h2>YouTube Content Cleaner</h2>
+  <header class="top-bar">
+    <div class="logo">YT Breeze</div>
+    <button class="toggle-dark" (click)="toggleDarkMode()">
+      @if (darkMode()) {
+        ☀ Light
+      } @else {
+        🌙 Dark
+      }
+    </button>
+  </header>
 
-  <label>Video Title</label>
-  <input [(ngModel)]="title()" placeholder="Enter video title">
+  <main class="container">
 
-  <label>Transcript</label>
-  <textarea [(ngModel)]="transcript()" rows="6"></textarea>
+    <h2>YouTube Content Cleaner</h2>
+    <p class="subtitle">
+      Paste a YouTube link. Get the bottom line, fluff rating, and clickbait score.
+    </p>
 
-  <label>Optional: Your API Key</label>
-  <input [(ngModel)]="userApiKey()" placeholder="sk-...">
+    <label class="field-label">YouTube URL</label>
+    <input
+      class="input"
+      [ngModel]="youtubeUrl()"
+      (ngModelChange)="youtubeUrl.set($event)"
+      placeholder="https://www.youtube.com/watch?v=abc123"
+    />
 
-  <button (click)="submit()" [disabled]="loading()">
-    @if (loading()) {
-      Processing...
-    } @else {
-      Summarize
+    <label class="field-label">Optional: Your OpenAI API Key</label>
+    <input
+      class="input"
+      [ngModel]="userApiKey()"
+      (ngModelChange)="userApiKey.set($event)"
+      placeholder="sk-..."
+    />
+
+    <button class="primary-button" (click)="submit()" [disabled]="loading()">
+      @if (loading()) {
+        <span class="spinner"></span>
+        <span>Analyzing…</span>
+      } @else {
+        <span>Summarize Video</span>
+      }
+    </button>
+
+    @if (result()) {
+      <section class="output-box">
+
+        <div class="output-header">
+          <h3>Summary</h3>
+          <button class="secondary-button" (click)="copySummary()">
+            @if (copyStatus() === 'success') {
+              ✅ Copied
+            } @else if (copyStatus() === 'error') {
+              ⚠ Error
+            } @else {
+              📋 Copy
+            }
+          </button>
+        </div>
+
+        <div class="output-section">
+          <h4>Bottom Line</h4>
+          <p>{{ result().bottom_line }}</p>
+        </div>
+
+        <div class="output-section" *ngIf="result().key_points?.length">
+          <h4>Key Points</h4>
+          <ul>
+            @for (point of result().key_points; track point) {
+              <li>{{ point }}</li>
+            }
+          </ul>
+        </div>
+
+        <div class="output-section" *ngIf="result().skip_to_timestamp">
+          <h4>Best Timestamp to Skip To</h4>
+          <p>{{ result().skip_to_timestamp }}</p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Fluff Level</div>
+            <div class="metric-score">
+              {{ result().fluff_level.score }} / 100
+            </div>
+            <p class="metric-desc">{{ result().fluff_level.summary }}</p>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Clickbait Accuracy</div>
+            <div class="metric-score">
+              {{ result().clickbait_accuracy.score }} / 100
+            </div>
+            <p class="metric-desc">
+              {{ result().clickbait_accuracy.explanation }}
+            </p>
+          </div>
+        </div>
+
+        <div class="output-section" *ngIf="result().better_title">
+          <h4>Better Title Suggestion</h4>
+          <p class="better-title">{{ result().better_title }}</p>
+        </div>
+
+      </section>
     }
-  </button>
 
-  @if (result()) {
-    <div class="output-box">
-      <h3>Bottom Line</h3>
-      <p>{{ result().bottom_line }}</p>
+  </main>
 
-      <h3>Key Points</h3>
-      <ul>
-        @for (point of result().key_points; track point) {
-          <li>{{ point }}</li>
-        }
-      </ul>
-
-      <h3>Skip To</h3>
-      <p>{{ result().skip_to_timestamp }}</p>
-
-      <h3>Fluff Level: {{ result().fluff_level.score }}/100</h3>
-      <p>{{ result().fluff_level.summary }}</p>
-
-      <h3>Clickbait Accuracy: {{ result().clickbait_accuracy.score }}/100</h3>
-      <p>{{ result().clickbait_accuracy.explanation }}</p>
-
-      <h3>Better Title Suggestion</h3>
-      <p>{{ result().better_title }}</p>
-    </div>
-  }
 </div>

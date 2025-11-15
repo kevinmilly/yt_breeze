@@ -1,14 +1,75 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import OpenAI from "openai";
 
+// Load .env locally (ignored in prod)
+import dotenv from "dotenv";
+dotenv.config();
+
+// Rate limit store
 const RATE_LIMIT = 5;
 const ipUsage: Record<string, { count: number; lastReset: number }> = {};
 
+
+// --------------------------------------
+// Utility: Extract YouTube Video ID
+// --------------------------------------
+function extractVideoId(url: string): string | null {
+  const regex = /(?:v=|\/shorts\/|youtu\.be\/)([^&?/]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
+
+
+// --------------------------------------
+// Utility: Fetch Transcript from Lemnos API
+// --------------------------------------
+async function fetchTranscript(videoId: string) {
+  try {
+    const url = `https://yt.lemnoslife.com/videos?part=transcript&id=${videoId}`;
+    const response = await fetch(url);
+    const json = await response.json();
+
+    const transcript = json?.items?.[0]?.transcript;
+
+    if (!transcript || transcript.length === 0) return null;
+
+    // Join into one large text block
+    return transcript.map((t: any) => t.text).join(" ");
+  } catch (e) {
+    console.error("Transcript fetch error:", e);
+    return null;
+  }
+}
+
+
+// --------------------------------------
+// Utility: Fetch Title (no API key needed)
+// --------------------------------------
+async function fetchTitle(videoId: string): Promise<string | null> {
+  try {
+    const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    const response = await fetch(url);
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    return data.title || null;
+  } catch {
+    return null;
+  }
+}
+
+
+// --------------------------------------
+// MAIN HANDLER
+// --------------------------------------
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed. Use POST." });
+  }
 
   try {
     const ip =
@@ -23,24 +84,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ipUsage[ip] = { count: 0, lastReset: now };
     }
 
-    if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method Not Allowed. Use POST." });
-    }
-
-
-    const { transcript, title, userApiKey } = req.body;
+    const { youtubeUrl, userApiKey } = req.body;
     const usingBYOK = !!userApiKey;
 
+    if (!youtubeUrl) {
+      return res.status(400).json({ error: "Missing YouTube URL" });
+    }
+
+    // Enforce rate limit if not BYOK
     if (!usingBYOK && ipUsage[ip].count >= RATE_LIMIT) {
       return res.status(429).json({
         error: "Free-tier limit reached. Add your own API key.",
       });
     }
 
-    if (!transcript || !title) {
-      return res.status(400).json({ error: "Missing transcript or title" });
+    // -------------------------------
+    // Extract Video ID
+    // -------------------------------
+    const videoId = extractVideoId(youtubeUrl);
+    if (!videoId) {
+      return res.status(400).json({ error: "Invalid YouTube URL" });
     }
 
+    // -------------------------------
+    // Fetch Transcript
+    // -------------------------------
+    const transcript = await fetchTranscript(videoId);
+    if (!transcript) {
+      return res.status(404).json({
+        error: "Transcript not available for this video.",
+      });
+    }
+
+    // -------------------------------
+    // Fetch Title
+    // -------------------------------
+    const title = await fetchTitle(videoId) || "Untitled Video";
+
+    // -------------------------------
+    // Setup OpenAI Key
+    // -------------------------------
     const OPENAI_KEY = userApiKey || process.env.OPENAI_API_KEY;
 
     if (!OPENAI_KEY) {
@@ -51,9 +134,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const client = new OpenAI({ apiKey: OPENAI_KEY });
 
-    // ---------------------------------------
-    // Build text prompt (NO response_format)
-    // ---------------------------------------
+
+    // -------------------------------
+    // Build JSON prompt
+    // -------------------------------
     const prompt = `
 You are an AI that returns ONLY valid JSON.
 
@@ -85,9 +169,9 @@ Then produce JSON EXCLUSIVELY in this structure:
 }
 
 IMPORTANT:
-- Do NOT include any text before or after the JSON.
-- Do NOT add commentary.
-- Do NOT add backticks.
+- No commentary.
+- No backticks.
+- Only JSON.
 
 TITLE:
 ${title}
@@ -103,16 +187,9 @@ ${transcript}
 
     if (!usingBYOK) ipUsage[ip].count++;
 
-    // ---------------------------------------
-    // Extract raw text result
-    // ---------------------------------------
-    const raw = completion.output_text; // works in all 5.x SDK versions
+    const raw = completion.output_text;
 
-    // ---------------------------------------
-    // Parse JSON safely
-    // ---------------------------------------
     let json;
-
     try {
       json = JSON.parse(raw);
     } catch (err) {
