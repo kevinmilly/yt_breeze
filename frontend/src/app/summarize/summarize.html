@@ -1,13 +1,7 @@
 <div class="container">
-  <div class="brand-row">
-    <img class="brand-logo" src="assets/logos/tubreeze_logo1.svg" alt="Tubreeze logo" />
-    <div class="brand-text">
-      <h1 class="title">Tubreeze</h1>
-      <p class="subtitle">Tubreeze — YouTube Content Cleaner</p>
-    </div>
-  </div>
-  <div class="title-wrap" *ngIf="!result()">
-    <img class="title-bg" src="assets/logos/tubreeze_logo3.svg" alt="" aria-hidden="true" />
+  <div class="header-section">
+    <h1 class="title">Tubreeze</h1>
+    <p class="subtitle">YouTube Content Cleaner</p>
   </div>
 
   <!-- VIDEO THUMBNAIL + TITLE (shown when result is loaded) -->
@@ -47,15 +41,15 @@
     <p class="error" *ngIf="error()">{{ error() }}</p>
   </div>
 
-  <!-- Quick metrics row (placeholders shown until results are present) -->
-  <div class="metrics-row">
+  <!-- Quick metrics row (shown only when results are present) -->
+  <div class="metrics-row" *ngIf="result()">
     <div class="metric-pill small">
       <div class="metric-title">Fluff Level</div>
-      <div class="metric-value">{{ result() ? (result().fluff_level.score + '/100') : '--' }}</div>
+      <div class="metric-value">{{ result().fluff_level.score }}/100</div>
     </div>
     <div class="metric-pill small">
       <div class="metric-title">Clickbait</div>
-      <div class="metric-value">{{ result() ? (result().clickbait_accuracy.score + '/100') : '--' }}</div>
+      <div class="metric-value">{{ result().clickbait_accuracy.score }}/100</div>
     </div>
   </div>
 
