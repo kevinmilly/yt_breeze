@@ -5,16 +5,16 @@
 }
 
 :root{
-  --bg: #07080b;
-  --surface-1: #0d1421;
-  --surface-2: #111627;
-  --text: #eaf6ff;
-  --muted: rgba(234,246,255,0.65);
-  --accent: #00e0ff;      /* neon cyan */
-  --accent-2: #ff3ea6;    /* neon magenta */
-  --accent-contrast: #061018;
-  --success: #2ee6a6;
-  --danger: #ff6b6b;
+  --bg: #031018;
+  --surface-1: #071b22;
+  --surface-2: #0b262d;
+  --text: #e6fbff;
+  --muted: rgba(230,251,255,0.66);
+  --accent: #00c2a8;      /* seafoam */
+  --accent-2: #ff7660;    /* coral */
+  --accent-contrast: #021a18;
+  --success: #66e3a8;
+  --danger: #ff7b88;
   --glass: rgba(255,255,255,0.02);
   --radius: 10px;
 }
@@ -78,7 +78,7 @@ body{background:var(--bg)}
 
 /* Improved focus states and hover affordances for buttons */
 .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.03)}
-.btn-primary:focus{outline:none;box-shadow:0 0 0 4px rgba(77,208,225,0.12)}
+.btn-primary:focus{outline:none;box-shadow:0 0 0 4px rgba(0,194,168,0.12)}
 .btn-ghost:hover{background:rgba(255,255,255,0.02)}
 .btn-ghost:focus{outline:none;box-shadow:0 0 0 3px rgba(255,255,255,0.03)}
 

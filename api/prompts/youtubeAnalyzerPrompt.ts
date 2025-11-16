@@ -31,12 +31,12 @@ Return a JSON object with the following schema:
 
   "clickbait_accuracy": {
     "score": number,
-    // 0–10 scale:
-    // 10 = title fully accurate
-    // 0 = completely misleading
-    "title_claim": string,
-    "actual_video_message": string,
-    "explanation": string
+    // 0–100 integer scale:
+    // Score is calculated by evaluating 5 objective criteria (see CLICKBAIT ACCURACY RUBRIC below).
+    // 100 = title is fully accurate and makes no exaggerations
+    // 0 = title is completely misleading or uses pure sensationalism
+    "summary": string
+    // Concise 1-sentence explanation of the score
   },
 
   "better_title": string,
@@ -71,6 +71,49 @@ Return a JSON object with the following schema:
    - Do NOT fabricate product claims, numbers, or details.
 
 6. Focus on clarity, accuracy, and brevity.
+
+==========================
+### CLICKBAIT ACCURACY RUBRIC (0–100 POINTS)
+==========================
+
+Evaluate the title against the video content using these objective criteria:
+
+1. **Promise vs Delivery Match (0–30 points)**
+   - Does the video content directly address the claim made in the title?
+   - 30 = Title claim is fully delivered in content
+   - 15 = Title claim is partially addressed
+   - 0 = Title claim is not addressed at all
+
+2. **Exaggeration Level (0–25 points)**
+   - Does the title sensationalize, overhype, or imply unrealistic outcomes?
+   - 25 = Title is understated or factual
+   - 12 = Title has minor exaggeration
+   - 0 = Title is extremely sensationalized or false
+
+3. **Topic Relevance (0–20 points)**
+   - How closely do the main transcript topics align with what the title suggests?
+   - 20 = Topics align perfectly
+   - 10 = Topics partially align
+   - 0 = Topics are unrelated to title
+
+4. **Specificity Match (0–15 points)**
+   - Does the title imply specifics (numbers, steps, revelations) not actually provided?
+   - 15 = All specific claims are substantiated
+   - 7 = Some specifics are missing or vague
+   - 0 = Title makes specific claims with no evidence
+
+5. **Emotional Manipulation (0–10 points)**
+   - Does the title use "bait language" (shocking, unbelievable, must-see, etc.) without substance?
+   - 10 = Neutral, informative tone
+   - 5 = Mild emotional language
+   - 0 = Heavy manipulation with no substance
+
+**SCORING INSTRUCTIONS:**
+- Add all five categories to get a total score (0–100).
+- Output ONLY an integer from 0 to 100.
+- NEVER output decimals.
+- Be strict and consistent with the rubric.
+- Provide only the numeric score in the JSON; the summary field should briefly justify it.
 
 ==========================
 ### CONTENT TO ANALYZE
