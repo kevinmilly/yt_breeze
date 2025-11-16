@@ -62,20 +62,27 @@ async function fetchTranscriptSupadata(videoId: string): Promise<string> {
 
 
 // --------------------------------------
-// Fetch title using YouTube oEmbed
+// Fetch title and thumbnail using YouTube oEmbed
 // --------------------------------------
-async function fetchTitle(videoId: string): Promise<string> {
+async function fetchTitleAndThumbnail(videoId: string): Promise<{ title: string; thumbnail: string }> {
   try {
     const resp = await fetch(
       `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
     );
 
-    if (!resp.ok) return "Untitled Video";
+    if (!resp.ok) return { title: "Untitled Video", thumbnail: "" };
 
     const json = await resp.json();
-    return json.title || "Untitled Video";
+    const thumbnail = json.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    return {
+      title: json.title || "Untitled Video",
+      thumbnail,
+    };
   } catch {
-    return "Untitled Video";
+    return {
+      title: "Untitled Video",
+      thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+    };
   }
 }
 
@@ -116,9 +123,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "Invalid YouTube URL" });
 
     // --------------------------------------
-    // TITLE
+    // TITLE AND THUMBNAIL
     // --------------------------------------
-    const title = await fetchTitle(videoId);
+    const { title, thumbnail } = await fetchTitleAndThumbnail(videoId);
 
     // --------------------------------------
     // TRANSCRIPT (Supadata)
@@ -140,6 +147,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const filledPrompt = YOUTUBE_ANALYZER_PROMPT
       .replace("{{TITLE}}", title)
       .replace("{{TRANSCRIPT}}", transcript);
+
+    // Attach metadata to result
+    const metadata = {
+      videoId,
+      title,
+      thumbnail,
+    };
 
     // --------------------------------------
     // CALL OPENAI
@@ -171,7 +185,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Rate limit usage
     if (!usingBYOK) ipUsage[ip].count++;
 
-    return res.json(json);
+    // Return metadata alongside analysis
+    return res.json({ ...json, metadata });
   } catch (err: any) {
     console.error("Summarize API Error:", err);
 
