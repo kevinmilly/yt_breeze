@@ -21,6 +21,8 @@ export class Summarize {
   loading = signal(false);
   error = signal("");
   result = signal<any | null>(null);
+  // UI copy/save state
+  lastCopied = signal<string | null>(null);
 
   onYoutubeUrlChange(v: string) {
     this.youtubeUrlValue = v;
@@ -62,6 +64,60 @@ export class Summarize {
   }
 
   copy(text: string) {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).then(() => {
+      // noop
+    }).catch(() => {});
+  }
+
+  clearAll() {
+    this.youtubeUrlValue = "";
+    this.userApiKeyValue = "";
+    this.youtubeUrl.set("");
+    this.userApiKey.set("");
+    this.result.set(null);
+    this.error.set("");
+  }
+
+  copyWithFeedback(text: string, key: string) {
+    this.copy(text);
+    this.lastCopied.set(key);
+    setTimeout(() => this.lastCopied.set(null), 1500);
+  }
+
+  copyAll() {
+    const r = this.result();
+    if (!r) return;
+    const lines = [] as string[];
+    lines.push("Title: " + (r.better_title || ""));
+    lines.push("");
+    lines.push("Bottom Line:");
+    lines.push(r.bottom_line || "");
+    lines.push("");
+    lines.push("Key Points:");
+    if (Array.isArray(r.key_points)) {
+      r.key_points.forEach((p: string) => lines.push("- " + p));
+    }
+    const text = lines.join("\n");
+    this.copyWithFeedback(text, "all");
+  }
+
+  save() {
+    const r = this.result();
+    if (!r) return;
+    try {
+      const stored = localStorage.getItem("yt_breeze_saved");
+      const arr = stored ? JSON.parse(stored) : [];
+      arr.unshift({
+        url: this.youtubeUrlValue,
+        title: r.better_title || null,
+        result: r,
+        savedAt: new Date().toISOString(),
+      });
+      localStorage.setItem("yt_breeze_saved", JSON.stringify(arr.slice(0, 50)));
+      this.lastCopied.set("saved");
+      setTimeout(() => this.lastCopied.set(null), 1200);
+    } catch (e) {
+      // ignore
+    }
   }
 }

@@ -3,83 +3,101 @@
   <p class="subtitle">YouTube Content Cleaner</p>
 
   <div class="input-card">
-    <label>YouTube URL</label>
-    <input type="text" [(ngModel)]="youtubeUrlValue" (ngModelChange)="onYoutubeUrlChange($event)"
-      placeholder="https://youtube.com/..." />
+    <div class="input-card-head">
+      <div>
+        <h2 class="card-title">Summarize a YouTube Video</h2>
+        <p class="card-sub">Paste a public YouTube URL. Optional: add an OpenAI API key for higher rate limits.</p>
+      </div>
+      <div class="meta-actions">
+        <button class="btn-ghost" (click)="clearAll()">Clear</button>
+      </div>
+    </div>
 
-    <label>Optional: Your OpenAI API Key</label>
-    <input type="password" [(ngModel)]="userApiKeyValue" (ngModelChange)="onUserApiKeyChange($event)"
-      placeholder="sk-..." />
+    <div class="input-row">
+      <input type="text" [(ngModel)]="youtubeUrlValue" (ngModelChange)="onYoutubeUrlChange($event)"
+        placeholder="https://youtube.com/watch?v=... or https://youtu.be/..." />
 
+      <button class="btn-primary" (click)="summarize()" [disabled]="loading()">
+        {{ loading() ? "Summarizing..." : "Summarize" }}
+      </button>
+    </div>
 
-    <button (click)="summarize()" [disabled]="loading()">
-      {{ loading() ? "Summarizing..." : "Summarize Video" }}
-    </button>
+    <details class="advanced" role="group">
+      <summary class="advanced-summary">Optional: OpenAI API Key</summary>
+      <input type="password" [(ngModel)]="userApiKeyValue" (ngModelChange)="onUserApiKeyChange($event)"
+        placeholder="sk-..." />
+    </details>
 
     <p class="error" *ngIf="error()">{{ error() }}</p>
   </div>
 
-  <!-- RESULTS -->
- <!-- BOTTOM LINE -->
-<div class="section" *ngIf="result()">
-  <h3>
-    Bottom Line
-    <span class="info-tooltip" title="A 1–2 sentence summary of what the video is truly about.">ⓘ</span>
-  </h3>
+  <!-- RESULTS: two-column grid on wide screens -->
+  <div class="results-grid" *ngIf="result()">
+    <div class="left-col">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Bottom Line <span class="info-tooltip" data-tooltip="A 1–2 sentence summary of what the video is truly about." aria-hidden="true">ⓘ</span></h3>
+          </div>
+          <div class="card-actions">
+            <button class="icon-btn" (click)="copyWithFeedback(result().bottom_line, 'bottom_line')" [class.success]="lastCopied() === 'bottom_line'" title="Copy">⧉</button>
+          </div>
+        </div>
+        <p class="card-body">{{ result().bottom_line }}</p>
+      </div>
 
-  <p>{{ result().bottom_line }}</p>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Key Points <span class="info-tooltip" data-tooltip="The most important ideas extracted from the video." aria-hidden="true">ⓘ</span></h3>
+          </div>
+          <div class="card-actions">
+            <button class="icon-btn" (click)="copyWithFeedback(result().key_points.join('\n'), 'key_points')" [class.success]="lastCopied() === 'key_points'" title="Copy">⧉</button>
+          </div>
+        </div>
+        <ul class="points-list">
+          <li *ngFor="let p of result().key_points">{{ p }}</li>
+        </ul>
+      </div>
 
-  <button class="copy-btn" (click)="copy(result().bottom_line)">Copy</button>
-</div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Better Title <span class="info-tooltip" data-tooltip="A clearer, more accurate, or more engaging title." aria-hidden="true">ⓘ</span></h3>
+          </div>
+          <div class="card-actions">
+            <button class="icon-btn" (click)="copyWithFeedback(result().better_title, 'better_title')" [class.success]="lastCopied() === 'better_title'" title="Copy">⧉</button>
+          </div>
+        </div>
+        <p class="card-body">{{ result().better_title }}</p>
+      </div>
+    </div>
 
+    <aside class="right-col">
+      <div class="card metric-card">
+        <div class="card-header">
+          <h4>Fluff Level <span class="info-tooltip" data-tooltip="How much unnecessary filler the video contains." aria-hidden="true">ⓘ</span></h4>
+        </div>
+        <p class="metric">{{ result().fluff_level.score }}/100</p>
+        <p class="metric-sub">{{ result().fluff_level.summary }}</p>
+      </div>
 
-<!-- KEY POINTS -->
-<div class="section" *ngIf="result()">
-  <h3>
-    Key Points
-    <span class="info-tooltip" title="The most important ideas extracted from the video.">ⓘ</span>
-  </h3>
+      <div class="card metric-card">
+        <div class="card-header">
+          <h4>Clickbait Accuracy <span class="info-tooltip" data-tooltip="How well the video's title reflects its actual content." aria-hidden="true">ⓘ</span></h4>
+        </div>
+        <p class="metric">{{ result().clickbait_accuracy.score }}/100</p>
+        <p class="metric-sub">{{ result().clickbait_accuracy.summary }}</p>
+      </div>
 
-  <ul>
-    <li *ngFor="let p of result().key_points">{{ p }}</li>
-  </ul>
-
-  <button class="copy-btn" (click)="copy(result().key_points.join('\n'))">Copy</button>
-</div>
-
-
-<!-- FLUFF LEVEL -->
-<div class="section" *ngIf="result()">
-  <h3>
-    Fluff Level
-    <span class="info-tooltip" title="Measures how much unnecessary filler the video contains. Lower = better.">ⓘ</span>
-  </h3>
-
-  <p>{{ result().fluff_level.score }}/100 — {{ result().fluff_level.summary }}</p>
-</div>
-
-
-<!-- CLICKBAIT ACCURACY -->
-<div class="section" *ngIf="result()">
-  <h3>
-    Clickbait Accuracy
-    <span class="info-tooltip" title="How well the video's title reflects its actual content. Lower means 'more clickbait'.">ⓘ</span>
-  </h3>
-
-  <p>{{ result().clickbait_accuracy.score }}/100 — {{ result().clickbait_accuracy.summary }}</p>
-</div>
-
-
-<!-- BETTER TITLE -->
-<div class="section" *ngIf="result()">
-  <h3>
-    Better Title
-    <span class="info-tooltip" title="A clearer, more accurate, or more engaging title that better represents the video.">ⓘ</span>
-  </h3>
-
-  <p>{{ result().better_title }}</p>
-
-  <button class="copy-btn" (click)="copy(result().better_title)">Copy</button>
-</div>
+      <div class="card actions-card">
+        <h4>Actions</h4>
+        <div class="actions-row">
+          <button class="btn-ghost" (click)="copyAll()">Copy All</button>
+          <button class="btn-ghost" (click)="save()">Save</button>
+        </div>
+      </div>
+    </aside>
+  </div>
 
 </div>
