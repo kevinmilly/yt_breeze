@@ -1,90 +1,94 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import OpenAI from "openai";
 import dotenv from "dotenv";
+import OpenAI from "openai";
+
+import { YOUTUBE_ANALYZER_PROMPT } from "./prompts/youtubeAnalyzerPrompt";
+
 dotenv.config();
 
-// ------------------------
-// Rate Limit per IP
-// ------------------------
+// --------------------------------------
+// RATE LIMIT (for free-tier usage)
+// --------------------------------------
 const RATE_LIMIT = 5;
 const ipUsage: Record<string, { count: number; lastReset: number }> = {};
 
-// ------------------------
-// Extract video ID
-// ------------------------
+// --------------------------------------
+// Extract Video ID
+// --------------------------------------
 function extractVideoId(url: string): string | null {
-  const regex = /(?:v=|\/shorts\/|youtu\.be\/)([^&?/]+)/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
+  const regex = /(?:v=|youtu\.be\/|\/shorts\/)([^&?/]+)/;
+  const m = url.match(regex);
+  return m ? m[1] : null;
 }
 
-// ------------------------------------------------------
-// PIPE.video — Fetch transcript via VTT file
-// ------------------------------------------------------
-async function fetchTranscriptFromPiped(videoId: string): Promise<string | null> {
+// --------------------------------------
+// Fetch transcript via SUPADATA (FIXED)
+// --------------------------------------
+async function fetchTranscriptSupadata(videoId: string): Promise<string> {
+  const API_KEY = process.env.SUPADATA_API_KEY;
+  if (!API_KEY) throw new Error("Missing SUPADATA_API_KEY");
+
+  const url = `https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}`;
+
+  const resp = await fetch(url, {
+    headers: { "x-api-key": API_KEY },
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`Supadata error: ${text}`);
+  }
+
+  const json = await resp.json();
+  console.log("Supadata Raw Response:", json);
+
+  // Validate format
+  if (!json?.content || !Array.isArray(json.content)) {
+    throw new Error("Supadata returned invalid transcript format");
+  }
+
+  // Merge transcript text chunks into one big string
+  const mergedTranscript = json.content
+    .map((c: any) => c.text?.trim() || "")
+    .filter(Boolean)
+    .join(" ");
+
+  if (!mergedTranscript.length) {
+    throw new Error("Supadata transcript was empty");
+  }
+
+  return mergedTranscript;
+}
+
+
+// --------------------------------------
+// Fetch title using YouTube oEmbed
+// --------------------------------------
+async function fetchTitle(videoId: string): Promise<string> {
   try {
-    const infoUrl = `https://pipedapi.kavin.rocks/streams/${videoId}`;
-    const infoRes = await fetch(infoUrl);
-
-    if (!infoRes.ok) return null;
-
-    const info = await infoRes.json();
-
-    if (!info.captions || info.captions.length === 0) return null;
-
-    const english =
-      info.captions.find((c: any) =>
-        c.language.toLowerCase().includes("english")
-      ) || info.captions[0];
-
-    const vttUrl = english.url.replace(
-      "https://pipedapi.kavin.rocks",
-      "https://pipedproxy.kavin.rocks"
+    const resp = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
     );
 
-    const vttRes = await fetch(vttUrl);
-    if (!vttRes.ok) return null;
+    if (!resp.ok) return "Untitled Video";
 
-    const vtt = await vttRes.text();
-
-    const text = vtt
-      .split("\n")
-      .filter((line) => line && !line.includes("-->") && isNaN(Number(line)))
-      .join(" ");
-
-    return text.trim();
-  } catch (err) {
-    console.error("Transcript error:", err);
-    return null;
-  }
-}
-
-// ------------------------
-// Fetch title via oEmbed
-// ------------------------
-async function fetchTitle(videoId: string): Promise<string | null> {
-  try {
-    const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
-    const response = await fetch(url);
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    return data.title || null;
+    const json = await resp.json();
+    return json.title || "Untitled Video";
   } catch {
-    return null;
+    return "Untitled Video";
   }
 }
 
-// ------------------------
+// --------------------------------------
 // MAIN HANDLER
-// ------------------------
+// --------------------------------------
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST")
-    return res.status(405).json({ error: "Use POST" });
+    return res.status(405).json({ error: "Method Not Allowed" });
 
   try {
     const ip =
@@ -92,94 +96,88 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       req.socket?.remoteAddress ||
       "unknown";
 
+    // DAILY RATE LIMIT RESET
     const now = Date.now();
     const day = 1000 * 60 * 60 * 24;
 
-    if (!ipUsage[ip] || now - ipUsage[ip].lastReset > day)
+    if (!ipUsage[ip] || now - ipUsage[ip].lastReset > day) {
       ipUsage[ip] = { count: 0, lastReset: now };
+    }
 
+    // Parse request
     const { youtubeUrl, userApiKey } = req.body;
     const usingBYOK = !!userApiKey;
 
     if (!youtubeUrl)
       return res.status(400).json({ error: "Missing YouTube URL" });
 
-    if (!usingBYOK && ipUsage[ip].count >= RATE_LIMIT)
-      return res
-        .status(429)
-        .json({ error: "Free-tier limit reached. Add your API key." });
-
     const videoId = extractVideoId(youtubeUrl);
     if (!videoId)
       return res.status(400).json({ error: "Invalid YouTube URL" });
 
-    const transcript = await fetchTranscriptFromPiped(videoId);
-    if (!transcript)
-      return res
-        .status(404)
-        .json({ error: "Transcript not available." });
+    // --------------------------------------
+    // TITLE
+    // --------------------------------------
+    const title = await fetchTitle(videoId);
 
-    const title = (await fetchTitle(videoId)) || "Untitled Video";
+    // --------------------------------------
+    // TRANSCRIPT (Supadata)
+    // --------------------------------------
+    let transcript: string;
+    try {
+      transcript = await fetchTranscriptSupadata(videoId);
+    } catch (err: any) {
+      console.error("Supadata Error:", err);
+      return res.status(500).json({
+        error: "Supadata error",
+        details: err?.message || "Unknown error",
+      });
+    }
 
-    const OPENAI_KEY = userApiKey || process.env.OPENAI_API_KEY;
-    if (!OPENAI_KEY)
-      return res.status(500).json({ error: "Missing OpenAI key" });
+    // --------------------------------------
+    // Build Final Prompt
+    // --------------------------------------
+    const filledPrompt = YOUTUBE_ANALYZER_PROMPT
+      .replace("{{TITLE}}", title)
+      .replace("{{TRANSCRIPT}}", transcript);
 
-    const client = new OpenAI({ apiKey: OPENAI_KEY });
-
-    const prompt = `
-You output ONLY valid JSON. No commentary.
-
-Analyze the YouTube title and transcript:
-
-TITLE:
-${title}
-
-TRANSCRIPT:
-${transcript}
-
-Respond with JSON matching EXACTLY this structure:
-
-{
-  "bottom_line": "",
-  "key_points": [],
-  "skip_to_timestamp": "",
-  "fluff_level": {
-    "score": 0,
-    "summary": ""
-  },
-  "clickbait_accuracy": {
-    "score": 0,
-    "title_claim": "",
-    "actual_video_message": "",
-    "explanation": ""
-  },
-  "better_title": "",
-  "off_topic_segments": [{ "start": "", "end": "", "reason": "" }]
-}
-`;
+    // --------------------------------------
+    // CALL OPENAI
+    // --------------------------------------
+    const client = new OpenAI({
+      apiKey: userApiKey || process.env.OPENAI_API_KEY,
+    });
 
     const completion = await client.responses.create({
       model: "gpt-4o-mini",
-      input: prompt,
+      input: filledPrompt,
     });
-
-    if (!usingBYOK) ipUsage[ip].count++;
 
     const raw = completion.output_text;
 
+    // --------------------------------------
+    // PARSE AI JSON
+    // --------------------------------------
     let json;
     try {
       json = JSON.parse(raw);
-    } catch (err) {
+    } catch {
       return res.status(500).json({
-        error: "Invalid JSON returned by model",
+        error: "AI returned invalid JSON",
         raw,
       });
     }
 
-    res.json(json);
+    // Rate limit usage
+    if (!usingBYOK) ipUsage[ip].count++;
+
+    return res.json(json);
   } catch (err: any) {
-    res.status(500).json({ error: "Server error", details: err.message });
+    console.error("Summarize API Error:", err);
+
+    return res.status(500).json({
+      error: "Server error",
+      details: err?.message ?? "Unknown error",
+    });
   }
 }

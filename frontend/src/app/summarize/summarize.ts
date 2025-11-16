@@ -1,52 +1,67 @@
-import { Component, signal, inject } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { SummarizeService } from "../summarize";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: "app-summarize",
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: "./summarize.html",
-  styleUrls: ["./summarize.css"],
+  styleUrls: ["./summarize.css"]
 })
 export class Summarize {
-  private svc = inject(SummarizeService);
+  // UI-bound values
+  youtubeUrlValue = "";
+  userApiKeyValue = "";
 
+  // Signals used in code
   youtubeUrl = signal("");
   userApiKey = signal("");
-  loading = signal(false);
-  mode = signal("light");
 
+  loading = signal(false);
+  error = signal("");
   result = signal<any | null>(null);
 
-  toggleMode() {
-    this.mode.set(this.mode() === "light" ? "dark" : "light");
-    document.body.className = this.mode();
+  onYoutubeUrlChange(v: string) {
+    this.youtubeUrlValue = v;
+    this.youtubeUrl.set(v);
   }
 
-  submit() {
-    this.loading.set(true);
-    this.result.set(null);
+  onUserApiKeyChange(v: string) {
+    this.userApiKeyValue = v;
+    this.userApiKey.set(v);
+  }
 
-    this.svc
-      .summarize({
-        youtubeUrl: this.youtubeUrl(),
-        userApiKey: this.userApiKey(),
-      })
-      .subscribe({
-        next: (res) => {
-          this.result.set(res);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          alert(err.error?.error || "Error");
-          this.loading.set(false);
-        },
+  async summarize() {
+    this.error.set("");
+    this.result.set(null);
+    this.loading.set(true);
+
+    try {
+      const resp = await fetch("/api/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          youtubeUrl: this.youtubeUrl(),
+          userApiKey: this.userApiKey(),
+        }),
       });
+
+      const json = await resp.json();
+
+      if (!resp.ok) {
+        this.error.set(json.error || "Unknown error");
+      } else {
+        this.result.set(json);
+      }
+    } catch (err: any) {
+      this.error.set(err?.message || "Network error");
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   copy(text: string) {
     navigator.clipboard.writeText(text);
-    alert("Copied!");
   }
 }

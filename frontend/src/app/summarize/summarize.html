@@ -1,57 +1,85 @@
 <div class="container">
+  <h1 class="title">YT Breeze</h1>
+  <p class="subtitle">YouTube Content Cleaner</p>
 
-  <header>
-    <h1>YT Breeze</h1>
-    <button class="mode-btn" (click)="toggleMode()">
-      {{ mode() === 'light' ? '🌙 Dark' : '☀️ Light' }}
+  <div class="input-card">
+    <label>YouTube URL</label>
+    <input type="text" [(ngModel)]="youtubeUrlValue" (ngModelChange)="onYoutubeUrlChange($event)"
+      placeholder="https://youtube.com/..." />
+
+    <label>Optional: Your OpenAI API Key</label>
+    <input type="password" [(ngModel)]="userApiKeyValue" (ngModelChange)="onUserApiKeyChange($event)"
+      placeholder="sk-..." />
+
+
+    <button (click)="summarize()" [disabled]="loading()">
+      {{ loading() ? "Summarizing..." : "Summarize Video" }}
     </button>
-  </header>
 
-  <h2>YouTube Content Cleaner</h2>
-  <p>Paste a YouTube link. Get bottom line, key points, fluff rating, and clickbait score.</p>
+    <p class="error" *ngIf="error()">{{ error() }}</p>
+  </div>
 
-  <label>YouTube URL</label>
-  <input 
-    [ngModel]="youtubeUrl()"
-    (ngModelChange)="youtubeUrl.set($event)"
-    placeholder="https://youtube.com/watch?v=..."
-  />
+  <!-- RESULTS -->
+ <!-- BOTTOM LINE -->
+<div class="section" *ngIf="result()">
+  <h3>
+    Bottom Line
+    <span class="info-tooltip" title="A 1–2 sentence summary of what the video is truly about.">ⓘ</span>
+  </h3>
 
-  <label>Optional: Your OpenAI API Key</label>
-  <input 
-    type="password"
-    [ngModel]="userApiKey()"
-    (ngModelChange)="userApiKey.set($event)"
-    placeholder="sk-..."
-  />
+  <p>{{ result().bottom_line }}</p>
 
-  <button (click)="submit()" [disabled]="loading()">
-    @if (loading()) { <span class="spinner"></span> Processing... }
-    @else { Summarize Video }
-  </button>
+  <button class="copy-btn" (click)="copy(result().bottom_line)">Copy</button>
+</div>
 
-  @if (result()) {
-    <div class="output">
 
-      <h3>Bottom Line</h3>
-      <p>{{ result().bottom_line }}</p>
-      <button class="copy-btn" (click)="copy(result().bottom_line)">Copy</button>
+<!-- KEY POINTS -->
+<div class="section" *ngIf="result()">
+  <h3>
+    Key Points
+    <span class="info-tooltip" title="The most important ideas extracted from the video.">ⓘ</span>
+  </h3>
 
-      <h3>Key Points</h3>
-      <ul>
-        @for (point of result().key_points; track point) {
-          <li>{{ point }}</li>
-        }
-      </ul>
+  <ul>
+    <li *ngFor="let p of result().key_points">{{ p }}</li>
+  </ul>
 
-      <h3>Fluff Level</h3>
-      <p>{{ result().fluff_level.score }}/100 — {{ result().fluff_level.summary }}</p>
+  <button class="copy-btn" (click)="copy(result().key_points.join('\n'))">Copy</button>
+</div>
 
-      <h3>Clickbait Accuracy</h3>
-      <p>{{ result().clickbait_accuracy.explanation }}</p>
 
-      <h3>Better Title</h3>
-      <p>{{ result().better_title }}</p>
-    </div>
-  }
+<!-- FLUFF LEVEL -->
+<div class="section" *ngIf="result()">
+  <h3>
+    Fluff Level
+    <span class="info-tooltip" title="Measures how much unnecessary filler the video contains. Lower = better.">ⓘ</span>
+  </h3>
+
+  <p>{{ result().fluff_level.score }}/100 — {{ result().fluff_level.summary }}</p>
+</div>
+
+
+<!-- CLICKBAIT ACCURACY -->
+<div class="section" *ngIf="result()">
+  <h3>
+    Clickbait Accuracy
+    <span class="info-tooltip" title="How well the video's title reflects its actual content. Lower means 'more clickbait'.">ⓘ</span>
+  </h3>
+
+  <p>{{ result().clickbait_accuracy.score }}/100 — {{ result().clickbait_accuracy.summary }}</p>
+</div>
+
+
+<!-- BETTER TITLE -->
+<div class="section" *ngIf="result()">
+  <h3>
+    Better Title
+    <span class="info-tooltip" title="A clearer, more accurate, or more engaging title that better represents the video.">ⓘ</span>
+  </h3>
+
+  <p>{{ result().better_title }}</p>
+
+  <button class="copy-btn" (click)="copy(result().better_title)">Copy</button>
+</div>
+
 </div>

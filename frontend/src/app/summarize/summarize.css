@@ -1,95 +1,110 @@
-body.light {
-  --bg: #fafafa;
-  --text: #222;
-  --card: white;
-}
-
-body.dark {
-  --bg: #0d1117;
-  --text: #e6edf3;
-  --card: #161b22;
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  margin: 0;
-  transition: 0.3s ease;
-  font-family: Arial, sans-serif;
+:host {
+  display: block;
+  color: #eee;
+  font-family: Inter, sans-serif;
 }
 
 .container {
-  max-width: 760px;
+  max-width: 720px;
+  margin: 40px auto;
   padding: 20px;
-  margin: auto;
 }
 
-input, textarea {
+.title {
+  font-size: 40px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  opacity: 0.7;
+  margin-bottom: 30px;
+}
+
+.input-card {
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 1px solid #333;
+}
+
+label {
+  display: block;
+  margin: 12px 0 4px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+input {
   width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  margin-bottom: 20px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: #2c2c2c;
+  color: white;
+  border: 1px solid #444;
 }
 
 button {
-  padding: 10px 20px;
-  border-radius: 6px;
+  width: 100%;
+  padding: 12px;
+  background: #4a6df0;
   border: none;
-  cursor: pointer;
-  background: #007bff;
+  border-radius: 8px;
   color: white;
+  cursor: pointer;
+  font-size: 16px;
   margin-top: 10px;
 }
 
 button:disabled {
-  opacity: 0.6;
+  background: #3a3a3a;
+  cursor: not-allowed;
 }
 
-header {
+.error {
+  margin-top: 12px;
+  color: #ff6b6b;
+  text-align: center;
+}
+
+.results {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.mode-btn {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--text);
-}
-
-.output {
-  background: var(--card);
+.result-section {
+  background: #1c1c1c;
+  border: 1px solid #333;
   padding: 20px;
-  margin-top: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
+}
+
+.result-section h2 {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .copy-btn {
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid #555;
+}
+
+.copy-btn:hover {
   background: #444;
-  font-size: 13px;
-  margin-bottom: 20px;
 }
 
-.spinner {
-  border: 3px solid #ddd;
-  border-top: 3px solid #007bff;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  display: inline-block;
-  animation: spin 0.6s linear infinite;
-  vertical-align: middle;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Mobile */
-@media (max-width: 600px) {
-  .container {
-    padding: 10px;
-  }
+.tooltip {
+  cursor: help;
+  opacity: 0.7;
+  font-size: 14px;
 }

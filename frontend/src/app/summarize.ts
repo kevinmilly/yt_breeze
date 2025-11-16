@@ -1,11 +1,13 @@
-import { Injectable, inject } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+// frontend/src/app/summarize.ts (or wherever yours is)
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class SummarizeService {
   private http = inject(HttpClient);
+  private apiUrl = '/api/summarize';
 
-  summarize(body: any) {
-    return this.http.post("/api/summarize", body);
+  summarize(payload: { youtubeUrl: string; userApiKey?: string }) {
+    return this.http.post<any>(this.apiUrl, payload);
   }
 }
