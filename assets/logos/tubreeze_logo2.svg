@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="80" viewBox="0 0 140 80">
+  <rect width="140" height="80" rx="18" fill="#031018"/>
+  <g transform="translate(12,12)">
+    <!-- single flowing ribbon forming a stylized T -->
+    <path d="M6 40 C28 18, 60 18, 82 32" stroke="#9cefe0" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+    <path d="M44 8 L44 44" stroke="#7fe3c2" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+    <circle cx="106" cy="20" r="6" fill="#ffb3a6" opacity="0.9"/>
+  </g>
+</svg>

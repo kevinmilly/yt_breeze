@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="22" fill="#031018"/>
+  <g transform="translate(18,22)">
+    <!-- three soft curves forming a breeze icon, with negative space T -->
+    <path d="M6 26 C24 8, 60 8, 84 28" stroke="#00c2a8" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M6 40 C30 26, 64 30, 86 44" stroke="#7fe3c2" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M14 56 C36 44, 68 46, 92 60" stroke="#b9fbea" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

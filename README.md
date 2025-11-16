@@ -1,2 +1,2 @@
-# yt_breeze
-Helps you get to the bottom line with Youtube Videos
+# Tubreeze
+Tubreeze helps you get to the bottom line with YouTube videos — concise summaries, key points, and content quality metrics.

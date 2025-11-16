@@ -16,7 +16,7 @@
   --success: #66e3a8;
   --danger: #ff7b88;
   --glass: rgba(255,255,255,0.02);
-  --radius: 10px;
+  --radius: 12px;
 }
 
 body{background:var(--bg)}
@@ -61,7 +61,7 @@ body{background:var(--bg)}
 .left-col{display:flex;flex-direction:column;gap:16px}
 .right-col{display:flex;flex-direction:column;gap:12px}
 
-.card{background:var(--surface-1);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+.card{background:var(--surface-1);padding:14px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.03);box-shadow: 0 8px 24px rgba(2,24,22,0.45), 0 2px 6px rgba(0,194,168,0.06)}
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .card-header h3, .card-header h4{margin:0;font-size:16px}
 .card-body{color:var(--text);line-height:1.5}
@@ -70,6 +70,15 @@ body{background:var(--bg)}
 
 .metric-card .metric{font-weight:700;font-size:22px;margin:6px 0}
 .metric-sub{color:var(--muted);font-size:13px;margin:0}
+
+/* Metric pill style */
+.metric-pill{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;border-radius:999px;background:linear-gradient(90deg, rgba(255,118,96,0.04), rgba(0,194,168,0.03));border:1px solid rgba(255,255,255,0.02)}
+.metric-pill .metric{font-size:20px;font-weight:700;color:var(--text)}
+.metric-pill .metric-sub{color:var(--muted);font-size:12px;margin-top:4px}
+
+/* Title background (subtle breeze graphic behind title) */
+.title-wrap{position:relative;display:block;text-align:center;margin-bottom:8px}
+.title-bg{position:absolute;left:50%;top:-22px;transform:translateX(-50%);width:260px;opacity:0.06;pointer-events:none}
 
 .actions-row{display:flex;gap:8px}
 

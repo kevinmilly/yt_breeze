@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="20" fill="#031018"/>
+  <g transform="translate(20,20)">
+    <!-- soft flowing breeze lines with a hidden T -->
+    <path d="M6 30 C24 10, 56 6, 84 18" stroke="#00c2a8" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+    <path d="M6 44 C26 28, 56 26, 78 38" stroke="#98f3e2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    <!-- subtle T: center line -->
+    <path d="M44 10 L44 46" stroke="#ff7660" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+  </g>
+</svg>
