@@ -27,11 +27,19 @@
       <input type="text" [(ngModel)]="youtubeUrlValue" (ngModelChange)="onYoutubeUrlChange($event)"
         placeholder="https://youtube.com/watch?v=... or https://youtu.be/..." />
 
-      <button class="btn-primary" (click)="summarize()" [disabled]="loading()">
-        {{ loading() ? "Summarizing..." : "Summarize" }}
+      <button class="btn-primary" (click)="summarize()" [disabled]="loading()" aria-live="polite">
+        <span *ngIf="!loading()">Summarize</span>
+        <span *ngIf="loading()" class="btn-loading">
+          <span class="spinner" aria-hidden="true"></span>
+          Summarizing...
+        </span>
       </button>
     </div>
 
+    <!-- slim indeterminate progress bar shown while summarizing -->
+    <div class="progress-bar" *ngIf="loading()" role="progressbar" aria-valuetext="Summarizing">
+      <div class="progress"></div>
+    </div>
     <details class="advanced" role="group">
       <summary class="advanced-summary">Optional: OpenAI API Key</summary>
       <input type="password" [(ngModel)]="userApiKeyValue" (ngModelChange)="onUserApiKeyChange($event)"

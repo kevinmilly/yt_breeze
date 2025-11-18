@@ -58,6 +58,10 @@ body{background:var(--bg)}
 .btn-primary{background:var(--accent);color:#ffffff;padding:12px 18px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.2s;box-shadow:0 1px 2px rgba(0,0,0,0.05)}
 .btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.15)}
 .btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+/* Button loading spinner */
+.btn-loading{display:inline-flex;align-items:center;gap:8px}
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);border-top-color: #ffffff;animation: spin 0.8s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .btn-ghost{background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:8px;color:var(--text-muted);cursor:pointer;font-size:14px;transition:all 0.2s}
 .btn-ghost:hover{background:var(--surface-alt);color:var(--text);border-color:var(--text-muted)}
 
@@ -76,6 +80,11 @@ body{background:var(--bg)}
 
 .metric-card .metric{font-weight:700;font-size:24px;margin:6px 0;color:var(--accent)}
 .metric-sub{color:var(--text-muted);font-size:13px;margin:0;line-height:1.4}
+
+/* Slim indeterminate progress bar */
+.progress-bar{height:6px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:6px;overflow:hidden;margin-top:12px;border:1px solid rgba(255,255,255,0.02)}
+.progress{height:100%;width:30%;background:linear-gradient(90deg,var(--color-primary),var(--color-accent));border-radius:6px;animation: prog 1.2s cubic-bezier(.2,.7,.2,1) infinite}
+@keyframes prog{0%{transform:translateX(-120%)}50%{transform:translateX(0%)}100%{transform:translateX(120%)}}
 
 /* Metric pill style */
 .metric-pill{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;border-radius:10px;background:var(--surface);border:1px solid var(--border)}
