@@ -1,15 +1,18 @@
-import { Component, signal } from "@angular/core";
+import { Component, signal, ViewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
+import { TermsDisclaimerComponent } from "../terms-disclaimer/terms-disclaimer";
 
 @Component({
   selector: "app-summarize",
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, TermsDisclaimerComponent],
   templateUrl: "./summarize.html",
   styleUrls: ["./summarize.css"]
 })
 export class Summarize {
+  @ViewChild(TermsDisclaimerComponent) termsModal!: TermsDisclaimerComponent;
+
   // UI-bound values
   youtubeUrlValue = "";
   userApiKeyValue = "";
@@ -119,5 +122,9 @@ export class Summarize {
     } catch (e) {
       // ignore
     }
+  }
+
+  openTerms() {
+    this.termsModal?.open();
   }
 }

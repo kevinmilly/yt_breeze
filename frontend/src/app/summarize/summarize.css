@@ -141,3 +141,54 @@ body{background:var(--bg)}
 @media (prefers-reduced-motion:reduce){
   .card, .btn-primary, .icon-btn{transition:none}
 }
+
+/* App Footer */
+.app-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  text-align: center;
+}
+
+.footer-text {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 12px;
+  transition: opacity 0.2s;
+  padding: 0;
+}
+
+.footer-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.footer-sep {
+  color: rgba(255,255,255,0.1);
+}
+
+@media (max-width: 600px) {
+  .footer-text {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .footer-sep {
+    display: none;
+  }
+}
