@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import OpenAI from "openai";
 
 import { YOUTUBE_ANALYZER_PROMPT } from "./prompts/youtubeAnalyzerPrompt";
+import { validateYouTubeUrl } from "./utils/validateYouTubeUrl";
 
 dotenv.config();
 
@@ -11,15 +12,6 @@ dotenv.config();
 // --------------------------------------
 const RATE_LIMIT = 5;
 const ipUsage: Record<string, { count: number; lastReset: number }> = {};
-
-// --------------------------------------
-// Extract Video ID
-// --------------------------------------
-function extractVideoId(url: string): string | null {
-  const regex = /(?:v=|youtu\.be\/|\/shorts\/)([^&?/]+)/;
-  const m = url.match(regex);
-  return m ? m[1] : null;
-}
 
 // --------------------------------------
 // Fetch transcript via SUPADATA (FIXED)
@@ -118,9 +110,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!youtubeUrl)
       return res.status(400).json({ error: "Missing YouTube URL" });
 
-    const videoId = extractVideoId(youtubeUrl);
-    if (!videoId)
-      return res.status(400).json({ error: "Invalid YouTube URL" });
+    // STRICT URL VALIDATION
+    const validation = validateYouTubeUrl(youtubeUrl);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.message });
+    }
+
+    const videoId = validation.videoId!;
 
     // --------------------------------------
     // TITLE AND THUMBNAIL
