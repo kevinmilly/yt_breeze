@@ -28,7 +28,9 @@ async function fetchTranscriptSupadata(videoId: string): Promise<string> {
 
   if (!resp.ok) {
     const text = await resp.text();
-    throw new Error(`Supadata error: ${text}`);
+    // Log detailed error for debugging
+    console.error("Transcript fetch failed:", text);
+    throw new Error("Unable to fetch transcript for this video. Please try again or use a different video.");
   }
 
   const json = await resp.json();
@@ -130,10 +132,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       transcript = await fetchTranscriptSupadata(videoId);
     } catch (err: any) {
-      console.error("Supadata Error:", err);
+      console.error("Transcript fetch error:", err);
       return res.status(500).json({
-        error: "Supadata error",
-        details: err?.message || "Unknown error",
+        error: "Unable to process this video",
+        message: "We couldn't retrieve the transcript for this video. This might be due to:\n• The video doesn't have captions or transcripts available\n• The video is restricted or private\n• Temporary service issues\n\nPlease try another video.",
       });
     }
 
