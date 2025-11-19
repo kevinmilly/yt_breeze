@@ -9,7 +9,10 @@ Return a JSON object with the following schema:
 
 {
   "bottom_line": string, 
-  // ~1–2 sentences summarizing the core message of the entire video.
+  // The SINGLE TAKEAWAY: state the video's core message as a direct, blunt statement in 1–2 sentences MAX.
+  // Format: "The video's main point is ____" or "This video argues/shows/reveals that ____"
+  // Be unambiguous and specific. Avoid summarizing or explaining — just state the core message.
+  // This must be the one thing someone needs to know if they don't have time to watch.
 
   "key_points": [
     string
