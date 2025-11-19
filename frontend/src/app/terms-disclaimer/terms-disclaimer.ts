@@ -161,15 +161,16 @@ import { CommonModule } from "@angular/common";
       transform: translate(-50%, -50%);
       background: var(--color-surface-1);
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: var(--shadow-1);
       z-index: 1000;
-      max-width: 600px;
-      width: 90%;
-      max-height: 85vh;
+      max-width: 720px;
+      width: 94%;
+      max-height: 90vh;
       display: flex;
       flex-direction: column;
       animation: slideUp 0.3s ease-out;
+      overflow: hidden;
     }
 
     @keyframes slideUp {
@@ -189,7 +190,7 @@ import { CommonModule } from "@angular/common";
       right: 16px;
       background: transparent;
       border: none;
-      color: var(--text-primary);
+      color: var(--text);
       font-size: 24px;
       cursor: pointer;
       padding: 4px 8px;
@@ -204,8 +205,9 @@ import { CommonModule } from "@angular/common";
     }
 
     .modal-header {
-      padding: 24px 24px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
+      padding: 20px 20px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      flex: 0 0 auto;
     }
 
     .modal-header h2 {
@@ -224,8 +226,9 @@ import { CommonModule } from "@angular/common";
     .modal-tabs {
       display: flex;
       gap: 0;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(0,0,0,0.04);
       padding: 0;
+      flex: 0 0 auto;
     }
 
     .tab-btn {
@@ -252,12 +255,13 @@ import { CommonModule } from "@angular/common";
     }
 
     .modal-body {
-      flex: 1;
+      flex: 1 1 auto;
       overflow-y: auto;
-      padding: 20px 24px;
+      padding: 18px 20px;
       font-size: 13px;
       line-height: 1.6;
-      color: var(--text-primary);
+      color: var(--text);
+      -webkit-overflow-scrolling: touch;
     }
 
     .tab-pane h3 {
@@ -289,11 +293,12 @@ import { CommonModule } from "@angular/common";
     }
 
     .modal-footer {
-      padding: 16px 24px 24px;
-      border-top: 1px solid rgba(255,255,255,0.03);
+      padding: 12px 16px 16px;
+      border-top: 1px solid rgba(0,0,0,0.04);
       display: flex;
       gap: 12px;
       justify-content: flex-end;
+      flex: 0 0 auto;
     }
 
     .btn-primary {
