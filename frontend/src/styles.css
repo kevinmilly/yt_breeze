@@ -1,4 +1,4 @@
-/* Midnight Ocean theme (global variables) */
+/* Minimalist Clean theme (global variables) */
 :root{
   /* spacing & tokens */
   --tb-radius: 12px;
@@ -7,29 +7,29 @@
   --tb-space-md: 20px;
   --tb-space-lg: 32px;
 
-  /* palette (Midnight Ocean) */
-  --color-bg: #03151A;         /* darkest canvas */
-  --color-surface-1: #071E24;  /* main surfaces (cards) */
-  --color-surface-2: #0E2B32;  /* elevated surfaces */
-  --color-muted-surface: rgba(255,255,255,0.02);
+  /* palette (Minimalist Light) */
+  --color-bg: #FFFFFF;         /* clean white canvas */
+  --color-surface-1: #FFFFFF;  /* main surfaces (cards) */
+  --color-surface-2: #F8FAFB;  /* elevated surfaces */
+  --color-muted-surface: rgba(0,0,0,0.01);
 
-  --color-primary: #0EA5A3;    /* seafoam / primary accent for links/CTAs */
-  --color-primary-700: #0B8D88;
-  --color-secondary: #2D3A44;  /* slate for subtle containers */
-  --color-accent: #60E0C3;     /* bright highlight for badges or subtle emphasis */
+  --color-primary: #2563EB;    /* clean blue for links/CTAs */
+  --color-primary-700: #1D4ED8;
+  --color-secondary: #E5E7EB;  /* light grey for subtle containers */
+  --color-accent: #3B82F6;     /* bright blue highlight for badges */
 
-  --text-primary: #E6FBFF;     /* near-white for body text */
-  --text-secondary: #A8DBD8;   /* soft cyan for secondary text */
-  --text-muted: #78C9C6;       /* muted cyan (use sparingly) */
+  --text-primary: #1F2937;     /* dark grey for body text */
+  --text-secondary: #6B7280;   /* medium grey for secondary text */
+  --text-muted: #9CA3AF;       /* light grey (use sparingly) */
 
   /* Semantic */
-  --color-success: #66E3A8;
-  --color-warning: #F6C85F;
-  --color-danger:  #FF7B88;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger:  #EF4444;
 
   /* Shadows */
-  --shadow-1: 0 6px 18px rgba(3,21,26,0.55);
-  --shadow-2: 0 2px 8px rgba(3,21,26,0.45);
+  --shadow-1: 0 6px 18px rgba(0,0,0,0.08);
+  --shadow-2: 0 2px 8px rgba(0,0,0,0.04);
 
   /* utility aliases (used by components)
      Keeping short names to avoid many changes in component CSS */
@@ -38,8 +38,8 @@
   --surface-alt: var(--color-surface-2);
   --accent: var(--color-primary);
   --accent-hover: var(--color-primary-700);
-  /* border should be slightly more visible on very dark surfaces for separation */
-  --border: rgba(230,251,255,0.06);
+  /* border for clean separation */
+  --border: rgba(0,0,0,0.08);
   /* text aliases used by components (map to semantic tokens) */
   --text: var(--text-primary);
   --text-muted: var(--text-secondary);

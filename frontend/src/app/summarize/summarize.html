@@ -49,18 +49,6 @@
     <p class="error" *ngIf="error()">{{ error() }}</p>
   </div>
 
-  <!-- Quick metrics row (shown only when results are present) -->
-  <div class="metrics-row" *ngIf="result()">
-    <div class="metric-pill small">
-      <div class="metric-title">Fluff Level</div>
-      <div class="metric-value">{{ result().fluff_level.score }}/100</div>
-    </div>
-    <div class="metric-pill small">
-      <div class="metric-title">Clickbait</div>
-      <div class="metric-value">{{ result().clickbait_accuracy.score }}/100</div>
-    </div>
-  </div>
-
   <!-- RESULTS: two-column grid on wide screens -->
   <div class="results-grid" *ngIf="result()">
     <div class="left-col">
@@ -118,14 +106,6 @@
         </div>
         <p class="metric">{{ result().clickbait_accuracy.score }}/100</p>
         <p class="metric-sub">{{ result().clickbait_accuracy.summary }}</p>
-      </div>
-
-      <div class="card actions-card">
-        <h4>Actions</h4>
-        <div class="actions-row">
-          <button class="btn-ghost" (click)="copyAll()">Copy All</button>
-          <button class="btn-ghost" (click)="save()">Save</button>
-        </div>
       </div>
     </aside>
   </div>
