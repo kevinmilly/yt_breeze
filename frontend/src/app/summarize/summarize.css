@@ -26,10 +26,22 @@ body{background:var(--bg)}
   color:var(--text);
 }
 
+.brand-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.brand-logo {
+  width: 150px;
+  height: auto;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+
 /* Brand row (wordmark centered) */
 .brand-row{display:flex;align-items:center;justify-content:center;gap:14px;max-width:1100px;margin:0 auto;padding:14px 0}
-/* hide any image-based logo (use the wordmark instead) */
-.brand-logo{display:none}
 .brand-text{display:flex;flex-direction:column;align-items:center}
 .brand-text .title{font-size:36px;margin:0;font-weight:800;letter-spacing:0.2px}
 .brand-text .subtitle{margin:6px 0 0;color:var(--text-muted);font-size:14px}
