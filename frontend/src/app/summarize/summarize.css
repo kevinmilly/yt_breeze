@@ -26,12 +26,13 @@ body{background:var(--bg)}
   color:var(--text);
 }
 
-/* Brand row (logo left of title) */
-.brand-row{display:flex;align-items:center;gap:14px;max-width:1100px;margin:0 auto;padding:6px 0}
-.brand-row.brand-centered{justify-content:center}
+/* Brand row (wordmark centered) */
+.brand-row{display:flex;align-items:center;justify-content:center;gap:14px;max-width:1100px;margin:0 auto;padding:14px 0}
+/* hide any image-based logo (use the wordmark instead) */
+.brand-logo{display:none}
 .brand-text{display:flex;flex-direction:column;align-items:center}
-.brand-text .title{font-size:22px;margin:0}
-.brand-text .subtitle{margin:0;color:var(--text-muted);font-size:13px}
+.brand-text .title{font-size:36px;margin:0;font-weight:800;letter-spacing:0.2px}
+.brand-text .subtitle{margin:6px 0 0;color:var(--text-muted);font-size:14px}
 
 @media (max-width:720px){
   .brand-row{align-items:flex-start;gap:10px}
