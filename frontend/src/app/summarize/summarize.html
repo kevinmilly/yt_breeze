@@ -1,8 +1,13 @@
 <div class="container">
-  <div class="header-section">
-    <h1 class="title">Tubreeze</h1>
-    <p class="subtitle">YouTube Content Cleaner</p>
-  </div>
+  <header class="header-section">
+    <div class="brand-row">
+      <img class="brand-logo" src="assets/tubreeze-logo.svg" alt="TuBreeze logo" />
+      <div class="brand-text">
+        <h1 class="title">TuBreeze</h1>
+        <p class="subtitle">YouTube Content Cleaner</p>
+      </div>
+    </div>
+  </header>
 
   <!-- VIDEO THUMBNAIL + TITLE (shown when result is loaded) -->
   <div class="video-header" *ngIf="result()?.metadata">
