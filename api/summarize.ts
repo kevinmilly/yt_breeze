@@ -48,7 +48,7 @@ async function fetchTranscriptSupadata(videoId: string): Promise<string> {
     .join(" ");
 
   if (!mergedTranscript.length) {
-    throw new Error("Supadata transcript was empty");
+    throw new Error("Transcript was empty");
   }
 
   return mergedTranscript;
