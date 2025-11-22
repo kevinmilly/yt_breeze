@@ -13,6 +13,9 @@ import { TermsDisclaimerComponent } from "../terms-disclaimer/terms-disclaimer";
 export class Summarize {
   @ViewChild(TermsDisclaimerComponent) termsModal!: TermsDisclaimerComponent;
 
+  // Make JSON available to template
+  JSON = JSON;
+
   // UI-bound values
   youtubeUrlValue = "";
   userApiKeyValue = "";
@@ -24,6 +27,7 @@ export class Summarize {
   loading = signal(false);
   error = signal("");
   result = signal<any | null>(null);
+  debateMode = signal(false);
   // UI copy/save state
   lastCopied = signal<string | null>(null);
 
