@@ -160,17 +160,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       apiKey: userApiKey || process.env.OPENAI_API_KEY,
     });
 
-    const completion = await client.responses.create({
+    const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
-      input: filledPrompt,
+      messages: [
+        {
+          role: "user",
+          content: filledPrompt,
+        },
+      ],
+      temperature: 0.3,
     });
 
-    const raw = completion.output_text;
+    const raw = completion.choices[0]?.message?.content || "";
 
     // --------------------------------------
     // PARSE AI JSON
     // --------------------------------------
-    let json;
+    let json: any;
     try {
       json = JSON.parse(raw);
     } catch {
@@ -178,6 +184,96 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         error: "AI returned invalid JSON",
         raw,
       });
+    }
+
+    // --------------------------------------
+    // NORMALIZE/VALIDATE `debate` OBJECT (ensure required shape and defaults)
+    // --------------------------------------
+    function ensureString(v: any, fallback = "insufficient data") {
+      if (typeof v === "string" && v.trim().length) return v;
+      return fallback;
+    }
+
+    function ensureNumber(v: any) {
+      if (typeof v === "number" && Number.isFinite(v)) return v;
+      // If parseable string, try parseInt
+      if (typeof v === "string") {
+        const n = parseInt(v, 10);
+        if (!isNaN(n)) return n;
+      }
+      return 0;
+    }
+
+    function normalizeArgument(a: any, forSide = true) {
+      if (!a || typeof a !== "object") return forSide
+        ? { argument: "insufficient data", evidence: "", strength: "low" }
+        : { counterpoint: "insufficient data", evidence: "", strength: "low" };
+
+      if (forSide) {
+        return {
+          argument: ensureString(a.argument, "insufficient data"),
+          evidence: ensureString(a.evidence, ""),
+          strength: ensureString(a.strength, "low"),
+        };
+      }
+
+      return {
+        counterpoint: ensureString(a.counterpoint, "insufficient data"),
+        evidence: ensureString(a.evidence, ""),
+        strength: ensureString(a.strength, "low"),
+      };
+    }
+
+    try {
+      const d = json?.debate || {};
+
+      const debate = {
+        central_claim: ensureString(d.central_claim, "insufficient data"),
+        arguments_for: Array.isArray(d.arguments_for)
+          ? d.arguments_for.map((x: any) => normalizeArgument(x, true))
+          : [],
+        arguments_against: Array.isArray(d.arguments_against)
+          ? d.arguments_against.map((x: any) => normalizeArgument(x, false))
+          : [],
+        logical_fallacies: Array.isArray(d.logical_fallacies)
+          ? d.logical_fallacies.map((f: any) => ({
+              type: ensureString(f.type, "unspecified"),
+              example: ensureString(f.example, ""),
+              why_it_matters: ensureString(f.why_it_matters, ""),
+            }))
+          : [],
+        evidence_reliability: {
+          verified_facts: ensureNumber(d?.evidence_reliability?.verified_facts),
+          speculation_level: ensureNumber(d?.evidence_reliability?.speculation_level),
+          independent_sources: ensureNumber(d?.evidence_reliability?.independent_sources),
+          video_evidence_quality: ensureNumber(d?.evidence_reliability?.video_evidence_quality),
+        },
+        neutral_interpretation: ensureString(d.neutral_interpretation, "insufficient data"),
+        verdict: ensureString(d.verdict, "insufficient data"),
+      };
+
+      // Ensure arrays are present (even if empty)
+      debate.arguments_for = debate.arguments_for || [];
+      debate.arguments_against = debate.arguments_against || [];
+      debate.logical_fallacies = debate.logical_fallacies || [];
+
+      json.debate = debate;
+    } catch (e) {
+      // If normalization fails for any reason, ensure we still return a valid debate object
+      json.debate = {
+        central_claim: "insufficient data",
+        arguments_for: [],
+        arguments_against: [],
+        logical_fallacies: [],
+        evidence_reliability: {
+          verified_facts: 0,
+          speculation_level: 0,
+          independent_sources: 0,
+          video_evidence_quality: 0,
+        },
+        neutral_interpretation: "insufficient data",
+        verdict: "insufficient data",
+      };
     }
 
     // Rate limit usage
